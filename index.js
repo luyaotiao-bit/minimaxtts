@@ -495,60 +495,67 @@
   initUI(); 
   bindPanelEvents();
 
-// ========== 通过扩展菜单按钮注入 ==========
+// ========== 添加到扩展菜单（最终版） ==========
 (function addToExtensions() {
     console.log("[MiniMax] 启动扩展菜单注入...");
     
     function addMenuItem() {
-        // 查找扩展菜单面板
-        const panels = document.querySelectorAll('.extensions-menu, .dropdown-menu, [class*="extensions-popup"], [class*="extensions-menu"]');
-        for (const panel of panels) {
-            if (panel && !panel.querySelector('.minimax-menu-item')) {
-                const item = document.createElement('div');
-                item.className = 'extensions-menu-item minimax-menu-item';
-                item.innerHTML = '🎤 MiniMax语音';
-                item.style.cssText = `
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 8px 16px;
-                    cursor: pointer;
-                    border-radius: 4px;
-                    transition: background 0.2s;
-                    color: #333;
-                `;
-                item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
-                item.onmouseleave = function() { this.style.background = 'transparent'; };
-                item.onclick = function(e) {
-                    e.stopPropagation();
-                    window.openMinimaxPanel();
-                    // 关闭菜单
-                    const panel = this.closest('.extensions-menu, .dropdown-menu, [class*="extensions-popup"]');
-                    if (panel) panel.style.display = 'none';
-                };
-                panel.appendChild(item);
-                console.log("[MiniMax] ✅ 已添加到扩展菜单");
-                return true;
+        const menu = document.getElementById('extensionsMenu');
+        if (menu && !menu.querySelector('.minimax-menu-item')) {
+            const item = document.createElement('div');
+            item.className = 'extension_container interactable minimax-menu-item';
+            item.setAttribute('tabindex', '0');
+            item.setAttribute('role', 'listitem');
+            item.style.cssText = `
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 12px;
+                cursor: pointer;
+                border-radius: 4px;
+                transition: background 0.2s;
+            `;
+            item.innerHTML = `
+                <div class="fa-fw fa-solid fa-microphone extensionsMenuExtensionButton" style="color: #ffb6c1;"></div>
+                <span>🎤 MiniMax语音</span>
+            `;
+            item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
+            item.onmouseleave = function() { this.style.background = 'transparent'; };
+            item.onclick = function(e) {
+                e.stopPropagation();
+                window.openMinimaxPanel();
+                const menu = document.getElementById('extensionsMenu');
+                if (menu) menu.style.display = 'none';
+            };
+            
+            // 在"打开数据库"后面插入
+            const firstItem = menu.querySelector('.extension_container');
+            if (firstItem) {
+                menu.insertBefore(item, firstItem.nextSibling);
+            } else {
+                menu.appendChild(item);
             }
+            console.log("[MiniMax] ✅ 已添加到扩展菜单");
+            return true;
         }
         return false;
     }
     
     // 监听扩展按钮点击
-    document.addEventListener('click', function handler(e) {
+    document.addEventListener('click', function(e) {
         const btn = e.target.closest('#extensionsMenuButton');
         if (btn) {
-            console.log("[MiniMax] 检测到扩展按钮点击");
-            // 等待菜单出现
-            setTimeout(addMenuItem, 200);
-            setTimeout(addMenuItem, 500);
+            console.log("[MiniMax] 扩展按钮被点击");
+            setTimeout(addMenuItem, 100);
+            setTimeout(addMenuItem, 300);
         }
     });
     
     // 使用 MutationObserver 监听菜单出现
     const observer = new MutationObserver(function() {
-        if (addMenuItem()) {
-            // 找到了就不需要继续观察了
+        const menu = document.getElementById('extensionsMenu');
+        if (menu && menu.style.display !== 'none') {
+            addMenuItem();
         }
     });
     observer.observe(document.body, { 
@@ -558,9 +565,9 @@
         attributeFilter: ['style', 'display']
     });
     
-    // 延迟尝试
-    setTimeout(addMenuItem, 2000);
-    setTimeout(addMenuItem, 5000);
+    // 立即尝试
+    setTimeout(addMenuItem, 1000);
+    setTimeout(addMenuItem, 3000);
     
-    console.log("[MiniMax] ✅ 监听已启动，点击 🧩 扩展按钮即可看到菜单项");
+    console.log("[MiniMax] ✅ 注入程序已启动");
 })();
