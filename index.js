@@ -508,26 +508,51 @@
   }
   
   window.playAudio = function(audioUrl, btn) {
-    if (window.currentAudio) window.currentAudio.pause();
-    window.currentAudio = new Audio(audioUrl);
-    window.currentAudio.play().catch(e => {
-      console.warn("[MiniMax] 切换本地备用通道播放..."); 
-      const text = btn ? decodeURIComponent($(btn).attr("data-txt") || "") : "";
-      if(text) { 
-        idbGet(STORE_CACHE, text).then(item => { 
-          if(item && item.audio) { 
-            if(currentAudio) currentAudio.pause(); 
-            currentAudio = new Audio(item.audio); 
-            currentAudio.play().catch(console.error); 
-          } 
-        }); 
-      }
-    });
-    if (btn) { 
-      btn.innerText = "🔊"; 
-      currentAudio.onended = function() { btn.innerText = "▶️"; }; 
+    if (window.currentAudio) {
+        try { window.currentAudio.pause(); } catch(e) {}
     }
-  }
+    
+    window.currentAudio = new Audio(audioUrl);
+    
+    window.currentAudio.play().catch(e => {
+        console.warn("[MiniMax] 切换本地备用通道播放...");
+        const text = btn ? decodeURIComponent($(btn).attr("data-txt") || "") : "";
+        if (text) {
+            idbGet(STORE_CACHE, text).then(item => {
+                if (item && item.audio) {
+                    if (window.currentAudio) {
+                        try { window.currentAudio.pause(); } catch(ex) {}
+                    }
+                    window.currentAudio = new Audio(item.audio);
+                    window.currentAudio.play().catch(err => {
+                        console.error("[MiniMax] 备用播放失败:", err);
+                        if (btn) btn.innerText = "▶️";
+                    });
+                    if (btn) {
+                        btn.innerText = "🔊";
+                        window.currentAudio.onended = function() {
+                            if (btn) btn.innerText = "▶️";
+                        };
+                    }
+                } else {
+                    if (btn) btn.innerText = "▶️";
+                }
+            }).catch(err => {
+                console.error("[MiniMax] 读取缓存失败:", err);
+                if (btn) btn.innerText = "▶️";
+            });
+        } else {
+            if (btn) btn.innerText = "▶️";
+        }
+    });
+    
+    if (btn) {
+        btn.innerText = "🔊";
+        window.currentAudio.onended = function() {
+            if (btn) btn.innerText = "▶️";
+        };
+    }
+};
 
   function hexToAudioUrl(hex) {
     const matched = hex.match(/.{1,2}/g); 
