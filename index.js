@@ -353,42 +353,160 @@
     pane.find("#xzy-fav-page-jump").on('click', () => { const val = parseInt($("#xzy-fav-page-input").val()); if(val > 0 && val <= total) { favPage = val; renderFavorites(); } });
   }
 
-  async function renderCachePane() {
-    const pane = $("#xzy-pane-cache"); 
-    pane.empty(); 
-    let cacheList = await idbGetAll(STORE_CACHE); 
-    if (cacheList.length === 0) { memoryCache.forEach((audio, text) => cacheList.push({ text: text, audio: audio })); }
-    if (cacheList.length === 0) { 
-      pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无本地缓存</div>'); 
-      return; 
+   async function renderCachePane() {
+    const pane = $("#xzy-pane-cache");
+    pane.empty();
+    let cacheList = await idbGetAll(STORE_CACHE);
+    if (cacheList.length === 0) {
+        memoryCache.forEach((audio, text) => cacheList.push({ text: text, audio: audio }));
     }
-    pane.append('<div style="display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:6px;"><span>共缓存了 ' + cacheList.length + ' 条</span><button id="xzy-cache-clear-all" style="background:#ffccc7;color:#ff4d4f;padding:2px 6px;border-radius:4px;">一键清空</button></div>');
-    $("#xzy-cache-clear-all").on('click', async () => { if(confirm("确定清空吗？")) { await idbClear(STORE_CACHE); memoryCache.clear(); renderCachePane(); } });
-    const total = Math.max(1, Math.ceil(cacheList.length / cachePageSize)); 
-    if (cachePage > total) cachePage = total; 
-    const start = (cachePage - 1) * cachePageSize; 
-    const pageList = cacheList.slice(start, start + cachePageSize);
-    pageList.forEach(item => {
-      const filename = "mm_" + getHash(item.text) + ".mp3";
-      const row = $('<div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:8px;margin-bottom:6px;"><div style="flex:1;font-size:12px;color:#222;">' + escapeHtml(item.text) + '</div><button class="xzy-cache-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:6px 8px;cursor:pointer;">▶️</button></div>');
-      row.find(".xzy-cache-play").on("click", function() { playAudio(TAVERN_URL + "/cache/" + filename, this); }); 
-      pane.append(row);
-    });
-    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>'); 
-    const rowPager = $('<div style="display:flex;gap:6px;"></div>');
-    const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:'+(a?'#ffb6c1':d?'#f0f0f0':'#fafafa')+'">'+t+'</button>');
-    const prev = mkBtn("上页", cachePage<=1, false); 
-    if(cachePage>1) prev.on('click', () => { cachePage--; renderCachePane(); }); 
-    const next = mkBtn("下页", cachePage>=total, false); 
-    if(cachePage<total) next.on('click', () => { cachePage++; renderCachePane(); }); 
-    rowPager.append(prev).append(next); 
-    pager.append(rowPager);
-    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 '+cachePage+' / '+total+' 页</span><input id="xzy-cache-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="' + cachePage + '"><button id="xzy-cache-page-jump" style="padding:2px 6px;border:1px solid #ccc;">跳转</button></div>'); 
-    pager.append(jump); 
-    pane.append(pager);
-    pane.find("#xzy-cache-page-jump").on('click', () => { const val = parseInt($("#xzy-cache-page-input").val()); if(val > 0 && val <= total) { cachePage = val; renderCachePane(); } });
-  }
+    if (cacheList.length === 0) {
+        pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无本地缓存</div>');
+        return;
+    }
 
+    pane.append(`
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#666;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
+            <span>📦 共缓存了 ${cacheList.length} 条</span>
+            <div style="display:flex;gap:6px;">
+                <button id="xzy-cache-download-all" style="background:#bae7ff;color:#000;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;">📥 打包下载全部</button>
+                <button id="xzy-cache-clear-all" style="background:#ffccc7;color:#ff4d4f;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;">🗑️ 一键清空</button>
+            </div>
+        </div>
+    `);
+
+    $("#xzy-cache-download-all").on('click', async function() {
+        if (cacheList.length === 0) {
+            toast("warning", "没有可下载的缓存");
+            return;
+        }
+        try {
+            if (typeof JSZip === 'undefined') {
+                toast("error", "JSZip 未加载，请刷新页面重试");
+                return;
+            }
+            const zip = new JSZip();
+            let count = 0;
+            for (const item of cacheList) {
+                if (item.audio) {
+                    let audioData = item.audio;
+                    if (audioData.includes('base64,')) {
+                        audioData = audioData.split('base64,')[1];
+                    }
+                    const filename = "mm_" + getHash(item.text) + ".mp3";
+                    zip.file(filename, audioData, { base64: true });
+                    count++;
+                }
+            }
+            if (count === 0) {
+                toast("warning", "没有可下载的音频数据");
+                return;
+            }
+            const content = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = `minimax_tts_cache_${new Date().toISOString().slice(0,10)}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+            toast("success", `✅ 成功打包下载 ${count} 个音频文件`);
+        } catch (e) {
+            console.error("[MiniMax] 打包下载失败:", e);
+            toast("error", "打包下载失败: " + (e.message || "未知错误"));
+        }
+    });
+
+    $("#xzy-cache-clear-all").on('click', async () => {
+        if (confirm("确定清空所有缓存吗？")) {
+            await idbClear(STORE_CACHE);
+            memoryCache.clear();
+            renderCachePane();
+            toast("success", "已清空所有缓存");
+        }
+    });
+
+    const total = Math.max(1, Math.ceil(cacheList.length / cachePageSize));
+    if (cachePage > total) cachePage = total;
+    const start = (cachePage - 1) * cachePageSize;
+    const pageList = cacheList.slice(start, start + cachePageSize);
+
+    pageList.forEach(item => {
+        const filename = "mm_" + getHash(item.text) + ".mp3";
+        const hasAudio = item.audio && item.audio.length > 0;
+        const row = $(`
+            <div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+                <div style="flex:1;font-size:12px;color:#222;min-width:60px;word-break:break-all;">${escapeHtml(item.text)}</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button class="xzy-cache-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:11px;">▶️</button>
+                    ${hasAudio ? `<button class="xzy-cache-download" data-filename="${filename}" data-audio="${encodeURIComponent(item.audio)}" style="background:#bae7ff;color:#000;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:11px;">📥</button>` : ''}
+                </div>
+            </div>
+        `);
+
+        row.find(".xzy-cache-play").on("click", function() {
+            playAudio(TAVERN_URL + "/cache/" + filename, this);
+        });
+
+        row.find(".xzy-cache-download").on("click", function() {
+            const audioData = decodeURIComponent($(this).attr("data-audio") || "");
+            const filename = $(this).attr("data-filename") || "audio.mp3";
+            if (audioData) {
+                let base64Data = audioData;
+                if (base64Data.includes('base64,')) {
+                    base64Data = base64Data.split('base64,')[1];
+                }
+                try {
+                    const link = document.createElement('a');
+                    link.href = 'data:audio/mp3;base64,' + base64Data;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    toast("success", `✅ 已下载: ${filename}`);
+                } catch (e) {
+                    toast("error", "下载失败");
+                    console.error("[MiniMax] 下载失败:", e);
+                }
+            } else {
+                const url = TAVERN_URL + "/cache/" + filename;
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                toast("success", `✅ 已下载: ${filename}`);
+            }
+        });
+
+        pane.append(row);
+    });
+
+    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>');
+    const rowPager = $('<div style="display:flex;gap:6px;"></div>');
+    const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:' + (a ? '#ffb6c1' : d ? '#f0f0f0' : '#fafafa') + '">' + t + '</button>');
+    const prev = mkBtn("上页", cachePage <= 1, false);
+    if (cachePage > 1) prev.on('click', () => { cachePage--;
+        renderCachePane(); });
+    const next = mkBtn("下页", cachePage >= total, false);
+    if (cachePage < total) next.on('click', () => { cachePage++;
+        renderCachePane(); });
+    rowPager.append(prev).append(next);
+    pager.append(rowPager);
+    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 ' + cachePage + ' / ' + total + ' 页</span><input id="xzy-cache-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;border-radius:4px;padding:2px;" value="' + cachePage + '"><button id="xzy-cache-page-jump" style="padding:2px 8px;border:1px solid #ccc;border-radius:4px;cursor:pointer;background:#f5f5f5;">跳转</button></div>');
+    pager.append(jump);
+    pane.append(pager);
+    pane.find("#xzy-cache-page-jump").on('click', () => {
+        const val = parseInt($("#xzy-cache-page-input").val());
+        if (val > 0 && val <= total) {
+            cachePage = val;
+            renderCachePane();
+        }
+    });
+  }
+  
   function playAudio(audioUrl, btn) {
     if (currentAudio) currentAudio.pause(); 
     currentAudio = new Audio(audioUrl);
