@@ -504,7 +504,7 @@
             item.className = 'extension_container interactable minimax-menu-item';
             item.setAttribute('tabindex', '0');
             item.setAttribute('role', 'listitem');
-            item.style.cssText = "display: flex; align-items: center; gap: 10px; padding: 5px 5px; cursor: pointer; border-radius: 4px; transition: background 0.2s;";
+            item.style.cssText = "display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s;";
             item.innerHTML = '<div class="fa-fw fa-solid fa-microphone extensionsMenuExtensionButton" style="color: #ffb6c1;"></div><span>MiniMax语音</span>';
             item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
             item.onmouseleave = function() { this.style.background = 'transparent'; };
@@ -526,6 +526,43 @@
         }
         return false;
     }
+    
+    // 监听扩展按钮点击
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('#extensionsMenuButton');
+        if (btn) {
+            console.log("[MiniMax] 扩展按钮被点击");
+            setTimeout(addMenuItem, 100);
+            setTimeout(addMenuItem, 300);
+            setTimeout(addMenuItem, 600);
+        }
+    });
+    
+    // 监听 DOM 变化
+    const observer = new MutationObserver(function() {
+        const menu = document.getElementById('extensionsMenu');
+        if (menu && menu.style.display !== 'none') {
+            addMenuItem();
+        }
+    });
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true 
+    });
+    
+    // 定期检查
+    let attempts = 0;
+    const interval = setInterval(function() {
+        attempts++;
+        if (addMenuItem()) {
+            clearInterval(interval);
+        } else if (attempts > 20) {
+            clearInterval(interval);
+        }
+    }, 2000);
+    
+    console.log("[MiniMax] ✅ 注入程序已启动，点击 🧩 扩展按钮查看");
+})();
 
 // ========== 启动消息处理 ==========
 (function startMessageProcessor() {
@@ -590,42 +627,4 @@
     console.log("[MiniMax] ✅ 消息处理器已完全启动");
 })();
   
-    // 监听扩展按钮点击
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('#extensionsMenuButton');
-        if (btn) {
-            console.log("[MiniMax] 扩展按钮被点击");
-            setTimeout(addMenuItem, 100);
-            setTimeout(addMenuItem, 300);
-            setTimeout(addMenuItem, 600);
-        }
-    });
-    
-    // 监听 DOM 变化
-    const observer = new MutationObserver(function() {
-        const menu = document.getElementById('extensionsMenu');
-        if (menu && menu.style.display !== 'none') {
-            addMenuItem();
-        }
-    });
-    observer.observe(document.body, { 
-        childList: true, 
-        subtree: true 
-    });
-    
-    // 定期检查
-    let attempts = 0;
-    const interval = setInterval(function() {
-        attempts++;
-        if (addMenuItem()) {
-            clearInterval(interval);
-        } else if (attempts > 20) {
-            clearInterval(interval);
-        }
-    }, 2000);
-    
-    console.log("[MiniMax] ✅ 注入程序已启动，点击 🧩 扩展按钮查看");
 })();
-
-})();
-自行检查注入，把修改好的完整代码发我
