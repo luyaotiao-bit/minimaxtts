@@ -495,7 +495,6 @@
   initUI(); 
   bindPanelEvents();
 
-  
 // ========== 添加到扩展菜单（立即执行版） ==========
 (function() {
     console.log("[MiniMax] 启动扩展菜单注入...");
