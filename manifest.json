@@ -1,9 +1,11 @@
 {
   "id": "sillytavern-minimax-tts",
   "name": "MiniMax单条语音云端缓存扩展",
-  "version": "1.4.1",
+  "version": "minimax单条语音云端缓存1.4.1",
   "description": "完美支持局域网iOS/PC跨设备同步与PC硬盘物理落盘的MiniMax TTS扩展",
-  "author": "XZY",
+  "author": "1",
   "entry": "index.js",
-  "js": ["index.js"]
+  "js": ["index.js"],
+  "styles": ["style.css"],
+  "type": "extension"
 }
