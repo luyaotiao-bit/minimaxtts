@@ -291,37 +291,37 @@
       '<div id="xzy-tts-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.3);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:auto;touch-action:none;">',
         '<div id="xzy-tts-modal" style="position:absolute;top:5%;left:50%;transform:translate(-50%,0);width:90%;max-width:360px;max-height:95vh;background:#ffffff;border:1px solid #ccc;border-radius:16px;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,0.15);overflow:hidden;pointer-events:auto;touch-action:auto;">',
           '<div style="padding:12px;display:flex;flex-direction:column;overflow-y:auto;flex:1;">',
-            '<div style="display:flex;justify-content:space-between;margin-bottom:12px;align-items:center;flex-shrink:0;\">',
-              '<h3 style="margin:0;font-size:15px;color:#d16b7c;\">minimax单条语音扩展 v1.4.1 ✧</h3>',
-              '<button id="xzy-tts-close" style="background:none;border:none;color:#666;cursor:pointer;font-size:18px;padding:0;\">✖</button>',
+            '<div style="display:flex;justify-content:space-between;margin-bottom:12px;align-items:center;flex-shrink:0;">',
+              '<h3 style="margin:0;font-size:15px;color:#d16b7c;">minimax单条语音扩展 v1.4.1 ✧</h3>',
+              '<button id="xzy-tts-close" style="background:none;border:none;color:#666;cursor:pointer;font-size:18px;padding:0;">✖</button>',
             '</div>',
-            '<div style="display:flex;gap:6px;margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:10px;flex-shrink:0;\">',
-              '<button id="xzy-tab-set" style="flex:1;background:#ffb6c1;color:#000;border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;\">配置参数</button>',
-              '<button id="xzy-tab-fav" style="flex:1;background:transparent;color:#333;border:1px solid #ccc;padding:6px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;\">收藏夹</button>',
-              '<button id="xzy-tab-cache" style="flex:1;background:transparent;color:#333;border:1px solid #ccc;padding:6px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;\">缓存池</button>',
+            '<div style="display:flex;gap:6px;margin-bottom:12px;border-bottom:1px solid #eee;padding-bottom:10px;flex-shrink:0;">',
+              '<button id="xzy-tab-set" style="flex:1;background:#ffb6c1;color:#000;border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;">配置参数</button>',
+              '<button id="xzy-tab-fav" style="flex:1;background:transparent;color:#333;border:1px solid #ccc;padding:6px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;">收藏夹</button>',
+              '<button id="xzy-tab-cache" style="flex:1;background:transparent;color:#333;border:1px solid #ccc;padding:6px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold;">缓存池</button>',
             '</div>',
-            '<div id="xzy-pane-set" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding-right:5px;\">',
-              '<div><label style="font-size:12px;color:#555;\">API Key</label><br><input id="xzy-inp-api" type="password" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;\"></div>',
-              '<div><label style="font-size:12px;color:#555;\">Group ID</label><br><input id="xzy-inp-grp" type="text" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;\"></div>',
-              '<div><label style="font-size:12px;color:#555;\">音色 ID (如 voice-xxx)</label><br><input id="xzy-inp-voc" type="text" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;\"></div>',
-              '<div><label style="font-size:12px;color:#555;\">模型名称</label><br><input id="xzy-inp-mod" type="text" placeholder="默认: speech-2.8-hd" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;\"></div>',
-              '<div style="border:1px solid #e8e8e8;border-radius:8px;padding:8px;background:#fafafa;\">',
-                '<label style="font-size:12px;color:#555;\">音色预设</label><br>',
-                '<select id="xzy-preset-select" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;\"><option value=\"\">未选择预设</option></select>',
-                '<input id="xzy-preset-name" type="text" placeholder="预设备注名，例如：温柔男声" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:6px;\">',
-                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;\">',
-                  '<button id="xzy-preset-load" type="button" style="background:#d9f7be;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">加载</button>',
-                  '<button id="xzy-preset-save-new" type="button" style="background:#ffb6c1;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">新建</button>',
-                  '<button id="xzy-preset-update" type="button" style="background:#bae7ff;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">更新</button>',
-                  '<button id="xzy-preset-delete" type="button" style="background:#ffccc7;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">删除</button>',
+            '<div id="xzy-pane-set" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;padding-right:5px;">',
+              '<div><label style="font-size:12px;color:#555;">API Key</label><br><input id="xzy-inp-api" type="password" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;"></div>',
+              '<div><label style="font-size:12px;color:#555;">Group ID</label><br><input id="xzy-inp-grp" type="text" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;"></div>',
+              '<div><label style="font-size:12px;color:#555;">音色 ID (如 voice-xxx)</label><br><input id="xzy-inp-voc" type="text" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;"></div>',
+              '<div><label style="font-size:12px;color:#555;">模型名称</label><br><input id="xzy-inp-mod" type="text" placeholder="默认: speech-2.8-hd" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;"></div>',
+              '<div style="border:1px solid #e8e8e8;border-radius:8px;padding:8px;background:#fafafa;">',
+                '<label style="font-size:12px;color:#555;">音色预设</label><br>',
+                '<select id="xzy-preset-select" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;"><option value="">未选择预设</option></select>',
+                '<input id="xzy-preset-name" type="text" placeholder="预设备注名，例如：温柔男声" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:6px;">',
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">',
+                  '<button id="xzy-preset-load" type=\"button\" style=\"background:#d9f7be;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">加载</button>',
+                  '<button id="xzy-preset-save-new" type=\"button\" style=\"background:#ffb6c1;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">新建</button>',
+                  '<button id="xzy-preset-update" type=\"button\" style=\"background:#bae7ff;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">更新</button>',
+                  '<button id="xzy-preset-delete" type=\"button\" style=\"background:#ffccc7;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">删除</button>',
                 '</div>',
-                '<div style="font-size:11px;color:#666;line-height:1.4;margin-top:6px;\">预设会保存：备注名、音色 ID、模型名称。</div>',
+                '<div style="font-size:11px;color:#666;line-height:1.4;margin-top:6px;">预设会保存：备注名、音色 ID、模型名称。</div>',
               '</div>',
-              '<button id="xzy-btn-clean-cache" style="background:#ffccc7;color:#ff4d4f;border:1px solid #ffccc7;padding:9px;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;flex-shrink:0;\">清理本地缓存</button>',
-              '<button id="xzy-btn-save" style="background:#ffb6c1;color:#000;border:none;padding:10px;border-radius:8px;cursor:pointer;margin-top:2px;font-weight:bold;width:100%;flex-shrink:0;\">保存配置</button>',
+              '<button id="xzy-btn-clean-cache" style="background:#ffccc7;color:#ff4d4f;border:1px solid #ffccc7;padding:9px;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;flex-shrink:0;">清理本地缓存</button>',
+              '<button id="xzy-btn-save" style="background:#ffb6c1;color:#000;border:none;padding:10px;border-radius:8px;cursor:pointer;margin-top:2px;font-weight:bold;width:100%;flex-shrink:0;">保存配置</button>',
             '</div>',
-            '<div id="xzy-pane-fav" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;padding-right:5px;flex:1;\"></div>',
-            '<div id="xzy-pane-cache" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;padding-right:5px;flex:1;\"></div>',
+            '<div id="xzy-pane-fav" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;padding-right:5px;flex:1;"></div>',
+            '<div id="xzy-pane-cache" style="display:none;flex-direction:column;gap:8px;overflow-y:auto;padding-right:5px;flex:1;"></div>',
           '</div>',
         '</div>',
       '</div>'
@@ -356,6 +356,7 @@
     });
   }
 
+  // 🌟【提权全局调用函数】挂载到顶级 window 上，确保任何宏命令都可以 100% 调起
   window.openMinimaxPanel = function() {
     $("#xzy-inp-api").val(localStorage.getItem(LS_API) || ""); $("#xzy-inp-grp").val(localStorage.getItem(LS_GRP) || "");
     $("#xzy-inp-voc").val(localStorage.getItem(LS_VOICE) || ""); $("#xzy-inp-mod").val(localStorage.getItem(LS_MODEL) || "speech-2.8-hd");
@@ -364,34 +365,34 @@
 
   async function renderFavorites() {
     const pane = $("#xzy-pane-fav"); pane.empty(); const favs = await getFavorites();
-    if (favs.length === 0) { pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;\">暂无收藏</div>'); return; }
+    if (favs.length === 0) { pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无收藏</div>'); return; }
     const total = Math.max(1, Math.ceil(favs.length / favPageSize)); if (favPage > total) favPage = total; const start = (favPage - 1) * favPageSize; const pageList = favs.slice(start, start + favPageSize);
     pageList.forEach(item => {
-      const row = $('<div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:8px;margin-bottom:6px;\"><div style="flex:1;font-size:12px;color:#222;\">' + escapeHtml(item.text) + '</div><button class="xzy-fav-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:7px 9px;cursor:pointer;\">▶️</button><button class="xzy-fav-del" style="background:rgba(255,77,79,.08);color:#ff4d4f;border:none;border-radius:7px;padding:7px 9px;cursor:pointer;\">✖</button></div>');
+      const row = $('<div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:8px;margin-bottom:6px;"><div style="flex:1;font-size:12px;color:#222;">' + escapeHtml(item.text) + '</div><button class="xzy-fav-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:7px 9px;cursor:pointer;">▶️</button><button class="xzy-fav-del" style="background:rgba(255,77,79,.08);color:#ff4d4f;border:none;border-radius:7px;padding:7px 9px;cursor:pointer;">✖</button></div>');
       row.find(".xzy-fav-play").on("click", function() { playAudio(item.audio, this); }); row.find(".xzy-fav-del").on("click", async function() { await deleteFavorite(item.text); renderFavorites(); }); pane.append(row);
     });
-    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;\"></div>'); const rowPager = $('<div style="display:flex;gap:6px;\"></div>');
-    const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:'+(a?'#ffb6c1':d?'#f0f0f0':'#fafafa')+'\">'+t+'</button>');
+    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>'); const rowPager = $('<div style="display:flex;gap:6px;"></div>');
+    const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:'+(a?'#ffb6c1':d?'#f0f0f0':'#fafafa')+'">'+t+'</button>');
     const prev = mkBtn("上一页", favPage<=1, false); if(favPage>1) prev.on('click', () => { favPage--; renderFavorites(); }); const next = mkBtn("下一页", favPage>=total, false); if(favPage<total) next.on('click', () => { favPage++; renderFavorites(); }); rowPager.append(prev).append(next); pager.append(rowPager);
-    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;\"><span>第 '+favPage+' / '+total+' 页</span><input id="xzy-fav-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="'+favPage+'"><button id="xzy-fav-page-jump" style="padding:2px 6px;border:1px solid #ccc;\">跳转</button></div>'); pager.append(jump); pane.append(pager);
+    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 '+favPage+' / '+total+' 页</span><input id="xzy-fav-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="'+favPage+'"><button id="xzy-fav-page-jump" style="padding:2px 6px;border:1px solid #ccc;">跳转</button></div>'); pager.append(jump); pane.append(pager);
     pane.find("#xzy-fav-page-jump").on('click', () => { const val = parseInt($("#xzy-fav-page-input").val()); if(val > 0 && val <= total) { favPage = val; renderFavorites(); } });
   }
 
   async function renderCachePane() {
     const pane = $("#xzy-pane-cache"); pane.empty(); let cacheList = await idbGetAll(STORE_CACHE); if (cacheList.length === 0) { memoryCache.forEach((audio, text) => cacheList.push({ text: text, audio: audio })); }
-    if (cacheList.length === 0) { pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;\">暂无本地缓存</div>'); return; }
-    pane.append('<div style="display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:6px;\"><span>共缓存了 ' + cacheList.length + ' 条</span><button id="xzy-cache-clear-all" style="background:#ffccc7;color:#ff4d4f;padding:2px 6px;border-radius:4px;\">一键清空</button></div>');
+    if (cacheList.length === 0) { pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无本地缓存</div>'); return; }
+    pane.append('<div style="display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:6px;"><span>共缓存了 ' + cacheList.length + ' 条</span><button id="xzy-cache-clear-all" style="background:#ffccc7;color:#ff4d4f;padding:2px 6px;border-radius:4px;">一键清空</button></div>');
     $("#xzy-cache-clear-all").on('click', async () => { if(confirm("确定清空吗？")) { await idbClear(STORE_CACHE); memoryCache.clear(); renderCachePane(); } });
     const total = Math.max(1, Math.ceil(cacheList.length / cachePageSize)); if (cachePage > total) cachePage = total; const start = (cachePage - 1) * cachePageSize; const pageList = cacheList.slice(start, start + cachePageSize);
     pageList.forEach(item => {
       const filename = "mm_" + getHash(item.text) + ".mp3";
-      const row = $('<div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:8px;margin-bottom:6px;\"><div style="flex:1;font-size:12px;color:#222;\">' + escapeHtml(item.text) + '</div><button class="xzy-cache-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:6px 8px;cursor:pointer;\">▶️</button></div>');
+      const row = $('<div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:8px;margin-bottom:6px;"><div style="flex:1;font-size:12px;color:#222;">' + escapeHtml(item.text) + '</div><button class="xzy-cache-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:6px 8px;cursor:pointer;">▶️</button></div>');
       row.find(".xzy-cache-play").on("click", function() { playAudio(TAVERN_URL + "/cache/" + filename, this); }); pane.append(row);
     });
-    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;\"></div>'); const rowPager = $('<div style="display:flex;gap:6px;\"></div>');
-    const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:'+(a?'#ffb6c1':d?'#f0f0f0':'#fafafa')+'\">'+t+'</button>');
+    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>'); const rowPager = $('<div style="display:flex;gap:6px;"></div>');
+    const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:'+(a?'#ffb6c1':d?'#f0f0f0':'#fafafa')+'">'+t+'</button>');
     const prev = mkBtn("上页", cachePage<=1, false); if(cachePage>1) prev.on('click', () => { cachePage--; renderCachePane(); }); const next = mkBtn("下页", cachePage>=total, false); if(cachePage<total) next.on('click', () => { cachePage++; renderCachePane(); }); rowPager.append(prev).append(next); pager.append(rowPager);
-    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;\"><span>第 '+cachePage+' / '+total+' 页</span><input id="xzy-cache-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="'+cachePage+'"><button id="xzy-cache-page-jump" style="padding:2px 6px;border:1px solid #ccc;\">跳转</button></div>'); pager.append(jump); pager.append(jump); pane.append(pager);
+    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 '+cachePage+' / '+total+' 页</span><input id="xzy-cache-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="'+cachePage+'"><button id="xzy-cache-page-jump" style="padding:2px 6px;border:1px solid #ccc;">跳转</button></div>'); pager.append(jump); pane.append(pager);
     pane.find("#xzy-cache-page-jump").on('click', () => { const val = parseInt($("#xzy-cache-page-input").val()); if(val > 0 && val <= total) { cachePage = val; renderCachePane(); } });
   }
 
@@ -438,7 +439,7 @@
     $(".mes_text p").each(function() {
       if ($(this).hasClass("xzy-tts-processed")) return; const oldHtml = $(this).html();
       const newHtml = oldHtml.replace(/(\"[^\"]+\"|“[^”]+”|「[^」]+」|『[^』]+』)/g, function(match) {
-        const text = match.replace(/[\"区域内“专”」『』「“”]/g, "").replace(/<[^>]*>?/gm, "").trim(); if (text.length === 0) return match; const encoded = encodeURIComponent(text);
+        const text = match.replace(/[\"区域内“专”」『』「精度”]/g, "").replace(/<[^>]*>?/gm, "").trim(); if (text.length === 0) return match; const encoded = encodeURIComponent(text);
         return match + "<span class='xzy-inline-wrap' style='white-space:nowrap;margin-left:4px;opacity:0.8;user-select:none;display:inline-flex;gap:2px;align-items:center;'><span class='xzy-play-btn' data-txt='" + encoded + "' style='cursor:pointer;background:rgba(0,0,0,0.05);padding:2px 4px;border-radius:4px;font-size:0.9em;'>▶️</span><span class='xzy-fav-btn' data-txt='" + encoded + "' style='cursor:pointer;background:rgba(0,0,0,0.05);padding:2px 4px;border-radius:4px;font-size:0.9em;'>⭐</span></span>";
       });
       $(this).html(newHtml).addClass("xzy-tts-processed");
@@ -449,18 +450,5 @@
   $("#chat").off("click.xzyplay").on("click.xzyplay", ".xzy-play-btn", function(e) { e.stopPropagation(); window.playXzyTTS(decodeURIComponent($(this).attr("data-txt")), this); });
   $("#chat").off("click.xzyfav").on("click.xzyfav", ".xzy-fav-btn", function(e) { e.stopPropagation(); window.favXzyTTS(decodeURIComponent($(this).attr("data-txt")), this); });
 
-  // 🌟【最关键：注册酒馆官方斜杠命令】🌟
-  // 这样任何外部插件（比如QR助手）只要呼叫 /minimax 就能直接拉起大面板！
-  jQuery(document).ready(function() {
-    const registerCommand = getApi("registerSlashCommand");
-    if (registerCommand) {
-      registerCommand("minimax", () => {
-        window.openMinimaxPanel();
-      }, [], "一键打开 MiniMax 语音大面板", true);
-    }
-  });
-
-  const eventOn = getApi("eventOn"), getButtonEvent = getApi("getButtonEvent");
-  if (eventOn && getButtonEvent) { eventOn(getButtonEvent("minimax语音"), function() { window.openMinimaxPanel(); }); }
   setInterval(processMessages, 2000);
 })();
