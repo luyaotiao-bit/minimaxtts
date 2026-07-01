@@ -528,39 +528,67 @@
     }
 
 // ========== 启动消息处理 ==========
-console.log("[MiniMax] 启动消息处理器...");
-
-// 立即执行一次
-setTimeout(function() {
-    processMessages();
-    console.log("[MiniMax] ✅ 首次消息处理完成");
-}, 1000);
-
-// 每2秒执行一次
-setInterval(processMessages, 2000);
-
-// 监听新消息（通过 MutationObserver 监听聊天区域变化）
-const chatObserver = new MutationObserver(function() {
-    // 防抖：500ms 内只触发一次
-    clearTimeout(chatObserver.debounce);
-    chatObserver.debounce = setTimeout(function() {
-        processMessages();
-    }, 500);
-});
-
-// 监听聊天容器
-const chatContainer = document.getElementById('chat');
-if (chatContainer) {
-    chatObserver.observe(chatContainer, {
-        childList: true,
-        subtree: true
+(function startMessageProcessor() {
+    console.log("[MiniMax] 启动消息处理器...");
+    
+    // 确保 processMessages 存在
+    if (typeof processMessages !== 'function') {
+        console.error("[MiniMax] ❌ processMessages 函数未定义！");
+        return;
+    }
+    
+    // 立即执行一次
+    setTimeout(function() {
+        try {
+            processMessages();
+            console.log("[MiniMax] ✅ 首次消息处理完成");
+        } catch(e) {
+            console.error("[MiniMax] ❌ 首次消息处理失败:", e);
+        }
+    }, 1000);
+    
+    // 每2秒执行一次
+    const intervalId = setInterval(function() {
+        try {
+            processMessages();
+        } catch(e) {
+            console.error("[MiniMax] ❌ 定时处理失败:", e);
+        }
+    }, 2000);
+    console.log("[MiniMax] ✅ 定时器已启动 (间隔2秒)");
+    
+    // 监听新消息
+    const chatObserver = new MutationObserver(function() {
+        clearTimeout(chatObserver.debounce);
+        chatObserver.debounce = setTimeout(function() {
+            try {
+                processMessages();
+            } catch(e) {
+                console.error("[MiniMax] ❌ 观察者处理失败:", e);
+            }
+        }, 300);
     });
-    console.log("[MiniMax] ✅ 聊天监听已启动");
-} else {
-    console.log("[MiniMax] ⚠️ 未找到聊天容器，将使用定时器轮询");
-}
-
-console.log("[MiniMax] ✅ 消息处理器已完全启动");
+    
+    // 等待聊天容器出现
+    let attempts = 0;
+    const waitForChat = setInterval(function() {
+        attempts++;
+        const chatContainer = document.getElementById('chat');
+        if (chatContainer) {
+            chatObserver.observe(chatContainer, {
+                childList: true,
+                subtree: true
+            });
+            console.log("[MiniMax] ✅ 聊天监听已启动");
+            clearInterval(waitForChat);
+        } else if (attempts > 10) {
+            console.log("[MiniMax] ⚠️ 未找到聊天容器，仅使用定时器轮询");
+            clearInterval(waitForChat);
+        }
+    }, 500);
+    
+    console.log("[MiniMax] ✅ 消息处理器已完全启动");
+})();
   
     // 监听扩展按钮点击
     document.addEventListener('click', function(e) {
@@ -600,3 +628,4 @@ console.log("[MiniMax] ✅ 消息处理器已完全启动");
 })();
 
 })();
+自行检查注入，把修改好的完整代码发我
