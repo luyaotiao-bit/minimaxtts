@@ -367,10 +367,10 @@
 
     pane.append(`
         <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#666;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
-            <span>📦 共缓存了 ${cacheList.length} 条</span>
+            <span>共缓存了 ${cacheList.length} 条</span>
             <div style="display:flex;gap:6px;">
-                <button id="xzy-cache-download-all" style="background:#bae7ff;color:#000;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;">📥 打包下载全部</button>
-                <button id="xzy-cache-clear-all" style="background:#ffccc7;color:#ff4d4f;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;">🗑️ 一键清空</button>
+                <button id="xzy-cache-download-all" style="background:#bae7ff;color:#000;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;">打包下载</button>
+                <button id="xzy-cache-clear-all" style="background:#ffccc7;color:#ff4d4f;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;">一键清空</button>
             </div>
         </div>
     `);
@@ -410,7 +410,7 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
-            toast("success", `✅ 成功打包下载 ${count} 个音频文件`);
+            toast("success", `成功打包下载 ${count} 个音频文件`);
         } catch (e) {
             console.error("[MiniMax] 打包下载失败:", e);
             toast("error", "打包下载失败: " + (e.message || "未知错误"));
@@ -439,7 +439,7 @@
                 <div style="flex:1;font-size:12px;color:#222;min-width:60px;word-break:break-all;">${escapeHtml(item.text)}</div>
                 <div style="display:flex;gap:4px;flex-wrap:wrap;">
                     <button class="xzy-cache-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:11px;">▶️</button>
-                    ${hasAudio ? `<button class="xzy-cache-download" data-filename="${filename}" data-audio="${encodeURIComponent(item.audio)}" style="background:#bae7ff;color:#000;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:11px;">📥</button>` : ''}
+                    ${hasAudio ? `<button class="xzy-cache-download" data-filename="${filename}" data-audio="${encodeURIComponent(item.audio)}" style="background:#bae7ff;color:#000;border:none;border-radius:7px;padding:4px 8px;cursor:pointer;font-size:11px;">下载</button>` : ''}
                 </div>
             </div>
         `);
@@ -463,7 +463,7 @@
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    toast("success", `✅ 已下载: ${filename}`);
+                    toast("success", `已下载: ${filename}`);
                 } catch (e) {
                     toast("error", "下载失败");
                     console.error("[MiniMax] 下载失败:", e);
@@ -477,7 +477,7 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                toast("success", `✅ 已下载: ${filename}`);
+                toast("success", `已下载: ${filename}`);
             }
         });
 
