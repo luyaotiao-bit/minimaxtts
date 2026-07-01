@@ -1,0 +1,15 @@
+/* MiniMax TTS 扩展菜单样式 */
+.minimax-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+    color: var(--text-color, #333);
+}
+
+.minimax-menu-item:hover {
+    background: rgba(255, 182, 193, 0.15);
+}
