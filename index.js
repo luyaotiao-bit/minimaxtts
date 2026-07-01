@@ -495,113 +495,57 @@
   initUI(); 
   bindPanelEvents();
 
- // ========== 扩展菜单注册 ==========
-(function registerToMenu() {
-  console.log("[MiniMax] 尝试注册到扩展菜单...");
+ // ========== 添加到扩展菜单 ==========
+(function addToExtensions() {
+  console.log("[MiniMax] 等待扩展菜单加载...");
   
-  let attempts = 0;
-  const maxAttempts = 20;
-  
-  function tryRegister() {
-    attempts++;
-    
-    // 查找左侧菜单的容器
-    const containers = [
-      '.extensions-menu',
-      '.left-menu .extensions',
-      '#extensions-container',
-      '.sidebar-actions',
-      '.menu-items',
-      '.extension-list'
-    ];
-    
-    let menuContainer = null;
-    for (const selector of containers) {
-      const el = $(selector);
-      if (el.length) {
-        menuContainer = el;
-        break;
-      }
-    }
-    
-    if (menuContainer && menuContainer.length) {
-      if (menuContainer.find('.minimax-menu-btn').length) {
-        console.log("[MiniMax] ✅ 已存在于菜单中");
-        return true;
-      }
-      
-      const btn = $('<div class="minimax-menu-btn" style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin:4px 0;border-radius:6px;cursor:pointer;transition:background 0.2s;">🎤 MiniMax语音</div>');
-      
-      btn.on('mouseenter', function() {
-        $(this).css('background', 'rgba(255,182,193,0.2)');
-      });
-      btn.on('mouseleave', function() {
-        $(this).css('background', 'transparent');
-      });
-      
-      btn.on('click', function() {
+  function addMenuItem() {
+    const menuPanel = document.querySelector('.extensions-menu, .dropdown-menu, [class*="extensions-popup"]');
+    if (menuPanel && !menuPanel.querySelector('.minimax-menu-item')) {
+      const item = document.createElement('div');
+      item.className = 'extensions-menu-item minimax-menu-item';
+      item.innerHTML = '🎤 MiniMax语音';
+      item.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.2s;
+      `;
+      item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
+      item.onmouseleave = function() { this.style.background = 'transparent'; };
+      item.onclick = function(e) {
+        e.stopPropagation();
         window.openMinimaxPanel();
-      });
-      
-      menuContainer.append(btn);
-      console.log("[MiniMax] ✅ 已注册到左侧菜单");
+        // 关闭菜单
+        const panel = this.closest('.extensions-menu, .dropdown-menu, [class*="extensions-popup"]');
+        if (panel) panel.style.display = 'none';
+      };
+      menuPanel.appendChild(item);
+      console.log("[MiniMax] ✅ 已添加到扩展菜单！点击 🧩 即可看到");
       return true;
-    }
-    
-    if (attempts < maxAttempts) {
-      setTimeout(tryRegister, 500);
-    } else {
-      console.warn("[MiniMax] ⚠️ 未找到菜单容器");
     }
     return false;
   }
   
-  setTimeout(tryRegister, 1000);
-})();
-
-// ========== 斜杠命令注册 ==========
-// 额外添加斜杠命令支持（与按钮不冲突）
-const registerCommand = getApi("registerSlashCommand");
-if (registerCommand) {
-  try {
-    registerCommand("minimax", () => window.openMinimaxPanel(), [], "🎤 打开MiniMax语音面板", true);
-    registerCommand("mplay", (args) => {
-      if (args && args.trim()) {
-        window.playXzyTTS(args.trim());
-      } else {
-        toast("warning", "用法：/mplay 要朗读的文本");
-      }
-    }, ["text"], "🔊 朗读指定文本", true);
-    console.log("[MiniMax] ✅ 斜杠命令注册成功");
-  } catch(e) {
-    console.warn("[MiniMax] 斜杠命令注册失败:", e);
-  }
-} else {
-  console.warn("[MiniMax] registerSlashCommand 不可用");
-}
-
-// ========== 事件绑定 ==========
-$("#chat").off("click.xzyplay").on("click.xzyplay", ".xzy-play-btn", function(e) {
-  e.stopPropagation();
-  window.playXzyTTS(decodeURIComponent($(this).attr("data-txt")), this);
-});
-
-$("#chat").off("click.xzyfav").on("click.xzyfav", ".xzy-fav-btn", function(e) {
-  e.stopPropagation();
-  window.favXzyTTS(decodeURIComponent($(this).attr("data-txt")), this);
-});
-
-// ========== 消息处理 ==========
-setInterval(processMessages, 2000);
-
-// ========== 快捷键支持 ==========
-$(document).on("keydown", function(e) {
-  // Ctrl+Shift+M 打开面板
-  if (e.ctrlKey && e.shiftKey && e.key === "M") {
-    e.preventDefault();
-    window.openMinimaxPanel();
-  }
-});
-
-console.log("[MiniMax] 🎤 扩展加载完成！");
+  // 立即尝试
+  if (addMenuItem()) return;
+  
+  // 没找到就监听
+  const observer = new MutationObserver(function() {
+    if (addMenuItem()) {
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  
+  // 兜底：点击扩展按钮时尝试添加
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('#extensionsMenuButton');
+    if (btn) {
+      setTimeout(addMenuItem, 200);
+    }
+  });
 })();
