@@ -495,57 +495,72 @@
   initUI(); 
   bindPanelEvents();
 
- // ========== 添加到扩展菜单 ==========
+// ========== 通过扩展菜单按钮注入 ==========
 (function addToExtensions() {
-  console.log("[MiniMax] 等待扩展菜单加载...");
-  
-  function addMenuItem() {
-    const menuPanel = document.querySelector('.extensions-menu, .dropdown-menu, [class*="extensions-popup"]');
-    if (menuPanel && !menuPanel.querySelector('.minimax-menu-item')) {
-      const item = document.createElement('div');
-      item.className = 'extensions-menu-item minimax-menu-item';
-      item.innerHTML = '🎤 MiniMax语音';
-      item.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 8px 16px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background 0.2s;
-      `;
-      item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
-      item.onmouseleave = function() { this.style.background = 'transparent'; };
-      item.onclick = function(e) {
-        e.stopPropagation();
-        window.openMinimaxPanel();
-        // 关闭菜单
-        const panel = this.closest('.extensions-menu, .dropdown-menu, [class*="extensions-popup"]');
-        if (panel) panel.style.display = 'none';
-      };
-      menuPanel.appendChild(item);
-      console.log("[MiniMax] ✅ 已添加到扩展菜单！点击 🧩 即可看到");
-      return true;
+    console.log("[MiniMax] 启动扩展菜单注入...");
+    
+    function addMenuItem() {
+        // 查找扩展菜单面板
+        const panels = document.querySelectorAll('.extensions-menu, .dropdown-menu, [class*="extensions-popup"], [class*="extensions-menu"]');
+        for (const panel of panels) {
+            if (panel && !panel.querySelector('.minimax-menu-item')) {
+                const item = document.createElement('div');
+                item.className = 'extensions-menu-item minimax-menu-item';
+                item.innerHTML = '🎤 MiniMax语音';
+                item.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 8px 16px;
+                    cursor: pointer;
+                    border-radius: 4px;
+                    transition: background 0.2s;
+                    color: #333;
+                `;
+                item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
+                item.onmouseleave = function() { this.style.background = 'transparent'; };
+                item.onclick = function(e) {
+                    e.stopPropagation();
+                    window.openMinimaxPanel();
+                    // 关闭菜单
+                    const panel = this.closest('.extensions-menu, .dropdown-menu, [class*="extensions-popup"]');
+                    if (panel) panel.style.display = 'none';
+                };
+                panel.appendChild(item);
+                console.log("[MiniMax] ✅ 已添加到扩展菜单");
+                return true;
+            }
+        }
+        return false;
     }
-    return false;
-  }
-  
-  // 立即尝试
-  if (addMenuItem()) return;
-  
-  // 没找到就监听
-  const observer = new MutationObserver(function() {
-    if (addMenuItem()) {
-      observer.disconnect();
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-  
-  // 兜底：点击扩展按钮时尝试添加
-  document.addEventListener('click', function(e) {
-    const btn = e.target.closest('#extensionsMenuButton');
-    if (btn) {
-      setTimeout(addMenuItem, 200);
-    }
-  });
+    
+    // 监听扩展按钮点击
+    document.addEventListener('click', function handler(e) {
+        const btn = e.target.closest('#extensionsMenuButton');
+        if (btn) {
+            console.log("[MiniMax] 检测到扩展按钮点击");
+            // 等待菜单出现
+            setTimeout(addMenuItem, 200);
+            setTimeout(addMenuItem, 500);
+        }
+    });
+    
+    // 使用 MutationObserver 监听菜单出现
+    const observer = new MutationObserver(function() {
+        if (addMenuItem()) {
+            // 找到了就不需要继续观察了
+        }
+    });
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'display']
+    });
+    
+    // 延迟尝试
+    setTimeout(addMenuItem, 2000);
+    setTimeout(addMenuItem, 5000);
+    
+    console.log("[MiniMax] ✅ 监听已启动，点击 🧩 扩展按钮即可看到菜单项");
 })();
