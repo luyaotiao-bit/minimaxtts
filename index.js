@@ -29,25 +29,13 @@
 
   function getApi(name) {
     if (typeof window[name] === "function") return window[name];
-    try {
-      if (window.parent && typeof window.parent[name] === "function") return window.parent[name];
-    } catch (e) {}
-    try {
-      if (window.top && typeof window.top[name] === "function") return window.top[name];
-    } catch (e) {}
+    try { if (window.parent && typeof window.parent[name] === "function") return window.parent[name]; } catch (e) {}
+    try { if (window.top && typeof window.top[name] === "function") return window.top[name]; } catch (e) {}
     return null;
   }
 
   function toast(type, msg) {
-    try {
-      if (window.toastr && typeof toastr[type] === "function") {
-        toastr[type](msg);
-      } else {
-        console.log("[MiniMax TTS]", type, msg);
-      }
-    } catch (e) {
-      console.log("[MiniMax TTS]", type, msg);
-    }
+    try { if (window.toastr && typeof toastr[type] === "function") { toastr[type](msg); } else { console.log("[MiniMax TTS]", type, msg); } } catch (e) { console.log("[MiniMax TTS]", type, msg); }
   }
 
   function escapeHtml(value) {
@@ -62,104 +50,64 @@
 
   function stopEvent(e) {
     if (!e) return false;
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     if (e.stopImmediatePropagation) e.stopImmediatePropagation();
     return false;
   }
 
   function openDB() {
     return new Promise(function(resolve, reject) {
-      if (!window.indexedDB) {
-        reject(new Error("当前浏览器不支持 IndexedDB，无法保存大量语音。"));
-        return;
-      }
+      if (!window.indexedDB) { reject(new Error("当前浏览器不支持 IndexedDB，无法保存大量语音。")); return; }
       const req = indexedDB.open(DB_NAME, DB_VERSION);
       req.onupgradeneeded = function(event) {
         const db = event.target.result;
-        if (!db.objectStoreNames.contains(STORE_CACHE)) {
-          const cache = db.createObjectStore(STORE_CACHE, { keyPath: "text" });
-          cache.createIndex("time", "time", { unique: false });
-        }
-        if (!db.objectStoreNames.contains(STORE_FAV)) {
-          const fav = db.createObjectStore(STORE_FAV, { keyPath: "text" });
-          fav.createIndex("time", "time", { unique: false });
-        }
+        if (!db.objectStoreNames.contains(STORE_CACHE)) { const cache = db.createObjectStore(STORE_CACHE, { keyPath: "text" }); cache.createIndex("time", "time", { unique: false }); }
+        if (!db.objectStoreNames.contains(STORE_FAV)) { const fav = db.createObjectStore(STORE_FAV, { keyPath: "text" }); fav.createIndex("time", "time", { unique: false }); }
       };
       req.onsuccess = function() { resolve(req.result); };
       req.onerror = function() { reject(req.error || new Error("IndexedDB 打开失败")); };
     });
   }
 
-  function getDB() {
-    if (!dbPromise) {
-      dbPromise = openDB().catch(function(err) {
-        dbPromise = null;
-        throw err;
-      });
-    }
-    return dbPromise;
-  }
+  function getDB() { if (!dbPromise) { dbPromise = openDB().catch(function(err) { dbPromise = null; throw err; }); } return dbPromise; }
 
   async function idbGet(storeName, key) {
     const db = await getDB();
     return new Promise(function(resolve, reject) {
-      const tx = db.transaction(storeName, "readonly");
-      const store = tx.objectStore(storeName);
-      const req = store.get(key);
-      req.onsuccess = function() { resolve(req.result || null); };
-      req.onerror = function() { reject(req.error || tx.error || new Error("IndexedDB 读取失败")); };
+      const tx = db.transaction(storeName, "readonly"); const store = tx.objectStore(storeName); const req = store.get(key);
+      req.onsuccess = function() { resolve(req.result || null); }; req.onerror = function() { reject(req.error || tx.error || new Error("IndexedDB 读取失败")); };
     });
   }
 
   async function idbPut(storeName, value) {
     const db = await getDB();
     return new Promise(function(resolve, reject) {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.put(value);
-      tx.oncomplete = function() { resolve(); };
-      tx.onerror = function() { reject(tx.error || new Error("IndexedDB 写入失败")); };
+      const tx = db.transaction(storeName, "readwrite"); const store = tx.objectStore(storeName); store.put(value);
+      tx.oncomplete = function() { resolve(); }; tx.onerror = function() { reject(tx.error || new Error("IndexedDB 写入失败")); };
     });
   }
 
   async function idbDelete(storeName, key) {
     const db = await getDB();
     return new Promise(function(resolve, reject) {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.delete(key);
-      tx.oncomplete = function() { resolve(); };
-      tx.onerror = function() { reject(tx.error || new Error("IndexedDB 删除失败")); };
+      const tx = db.transaction(storeName, "readwrite"); const store = tx.objectStore(storeName); store.delete(key);
+      tx.oncomplete = function() { resolve(); }; tx.onerror = function() { reject(tx.error || new Error("IndexedDB 删除失败")); };
     });
   }
 
   async function idbClear(storeName) {
-    const db = await getDB();
-    return new Promise(function(resolve, reject) {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.clear();
-      tx.oncomplete = function() { resolve(); };
+    const db = await getDB(); return new Promise(function(resolve, reject) {
+      const tx = db.transaction(storeName, "readwrite"); const store = tx.objectStore(storeName); store.clear(); tx.oncomplete = function() { resolve(); };
     });
   }
 
   async function idbGetAll(storeName) {
     const db = await getDB();
     return new Promise(function(resolve, reject) {
-      const tx = db.transaction(storeName, "readonly");
-      const store = tx.objectStore(storeName);
-      if (typeof store.getAll === "function") {
-        const req = store.getAll();
-        req.onsuccess = function() { resolve(req.result || []); };
-        return;
-      }
-      const list = [];
-      const req = store.openCursor();
-      req.onsuccess = function(event) {
-        const cursor = event.target.result;
-        if (cursor) { list.push(cursor.value); cursor.continue(); } else { resolve(list); }
-      };
+      const tx = db.transaction(storeName, "readonly"); const store = tx.objectStore(storeName);
+      if (typeof store.getAll === "function") { const req = store.getAll(); req.onsuccess = function() { resolve(req.result || []); }; return; }
+      const list = []; const req = store.openCursor();
+      req.onsuccess = function(event) { const cursor = event.target.result; if (cursor) { list.push(cursor.value); cursor.continue(); } else { resolve(list); } };
     });
   }
 
@@ -168,81 +116,49 @@
     migratePromise = (async function() {
       if (localStorage.getItem(LS_MIGRATED) === "1") return;
       try {
-        await getDB();
-        let oldFavs = JSON.parse(localStorage.getItem(LS_OLD_FAV) || "[]");
-        for (const item of oldFavs) {
-          if (!item || !item.text) continue;
-          await idbPut(STORE_FAV, { text: item.text, audio: item.audio || "", time: item.time || Date.now() });
-        }
+        await getDB(); let oldFavs = JSON.parse(localStorage.getItem(LS_OLD_FAV) || "[]");
+        for (const item of oldFavs) { if (!item || !item.text) continue; await idbPut(STORE_FAV, { text: item.text, audio: item.audio || "", time: item.time || Date.now() }); }
         localStorage.setItem(LS_MIGRATED, "1");
       } catch (e) {}
-    })();
-    return migratePromise;
+    })(); return migratePromise;
   }
 
   function getHash(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash).toString(36);
+    let hash = 0; for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; } return Math.abs(hash).toString(36);
   }
 
   async function uploadToPC(filename, base64Data) {
-    let pureBase64 = base64Data;
-    if (pureBase64.includes("base64,")) pureBase64 = pureBase64.split("base64,")[1];
+    let pureBase64 = base64Data; if (pureBase64.includes("base64,")) pureBase64 = pureBase64.split("base64,")[1];
     try {
       const token = window.TAVERN_CSRF_TOKEN || "";
       await fetch(TAVERN_URL + "/api/content/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
+        method: "POST", headers: { "Content-Type": "application/json", "X-CSRF-Token": token },
         body: JSON.stringify({ filename: "cache/" + filename, data: pureBase64, encoding: "base64" })
       });
       console.log("[MiniMax] 云端备份落盘成功: " + filename);
-    } catch (e) {
-      console.error("[MiniMax] 扩展落盘写盘报错", e);
-    }
+    } catch (e) { console.error("[MiniMax] 扩展落盘写盘报错", e); }
   }
 
   async function getCachedAudio(text) {
-    await migrateOldStorage();
-    if (memoryCache.has(text)) return memoryCache.get(text);
-    const filename = "mm_" + getHash(text) + ".mp3";
-    const remoteUrl = TAVERN_URL + "/cache/" + filename;
-    try {
-      const res = await fetch(remoteUrl, { method: 'HEAD' });
-      if (res.ok) { memoryCache.set(text, remoteUrl); return remoteUrl; }
-    } catch (e) {}
-    const cacheItem = await idbGet(STORE_CACHE, text);
-    if (cacheItem && cacheItem.audio) { memoryCache.set(text, cacheItem.audio); return cacheItem.audio; }
+    await migrateOldStorage(); if (memoryCache.has(text)) return memoryCache.get(text);
+    const filename = "mm_" + getHash(text) + ".mp3"; const remoteUrl = TAVERN_URL + "/cache/" + filename;
+    try { const res = await fetch(remoteUrl, { method: 'HEAD' }); if (res.ok) { memoryCache.set(text, remoteUrl); return remoteUrl; } } catch (e) {}
+    const cacheItem = await idbGet(STORE_CACHE, text); if (cacheItem && cacheItem.audio) { memoryCache.set(text, cacheItem.audio); return cacheItem.audio; }
     return null;
   }
 
   async function saveCachedAudio(text, audio) {
-    memoryCache.set(text, audio);
-    const filename = "mm_" + getHash(text) + ".mp3";
-    uploadToPC(filename, audio);
+    memoryCache.set(text, audio); const filename = "mm_" + getHash(text) + ".mp3"; uploadToPC(filename, audio);
     await idbPut(STORE_CACHE, { text: text, audio: audio, time: Date.now() });
   }
 
-  async function getFavorites() {
-    await migrateOldStorage();
-    const list = await idbGetAll(STORE_FAV);
-    return list.sort((a, b) => (a.time || 0) - (b.time || 0));
-  }
-
+  async function getFavorites() { await migrateOldStorage(); const list = await idbGetAll(STORE_FAV); return list.sort((a, b) => (a.time || 0) - (b.time || 0)); }
   async function deleteFavorite(text) { await idbDelete(STORE_FAV, text); }
 
   async function cleanCache(keepCount) {
-    keepCount = keepCount || 60;
-    await migrateOldStorage();
-    const list = await idbGetAll(STORE_CACHE);
-    list.sort((a, b) => (b.time || 0) - (a.time || 0));
-    const toDelete = list.slice(keepCount);
-    for (const item of toDelete) {
-      if (item && item.text) { await idbDelete(STORE_CACHE, item.text); memoryCache.delete(item.text); }
-    }
+    keepCount = keepCount || 60; await migrateOldStorage(); const list = await idbGetAll(STORE_CACHE);
+    list.sort((a, b) => (b.time || 0) - (a.time || 0)); const toDelete = list.slice(keepCount);
+    for (const item of toDelete) { if (item && item.text) { await idbDelete(STORE_CACHE, item.text); memoryCache.delete(item.text); } }
     return toDelete.length;
   }
 
@@ -284,9 +200,7 @@
 
   function initUI() {
     if (document.getElementById("xzy-tts-overlay")) return;
-    if (!window.JSZip) {
-      let script = document.createElement("script"); script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"; document.head.appendChild(script);
-    }
+    if (!window.JSZip) { let script = document.createElement("script"); script.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"; document.head.appendChild(script); }
     const html = [
       '<div id="xzy-tts-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;background:rgba(0,0,0,0.3);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:auto;touch-action:none;">',
         '<div id="xzy-tts-modal" style="position:absolute;top:5%;left:50%;transform:translate(-50%,0);width:90%;max-width:360px;max-height:95vh;background:#ffffff;border:1px solid #ccc;border-radius:16px;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,0.15);overflow:hidden;pointer-events:auto;touch-action:auto;">',
@@ -310,10 +224,10 @@
                 '<select id="xzy-preset-select" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:4px;"><option value="">未选择预设</option></select>',
                 '<input id="xzy-preset-name" type="text" placeholder="预设备注名，例如：温柔男声" style="width:100%;box-sizing:border-box;background:#f5f5f5;border:1px solid #ccc;color:#000;padding:8px;border-radius:6px;margin-top:6px;">',
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;">',
-                  '<button id="xzy-preset-load" type=\"button\" style=\"background:#d9f7be;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">加载</button>',
-                  '<button id="xzy-preset-save-new" type=\"button\" style=\"background:#ffb6c1;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">新建</button>',
-                  '<button id="xzy-preset-update" type=\"button\" style=\"background:#bae7ff;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">更新</button>',
-                  '<button id="xzy-preset-delete" type=\"button\" style=\"background:#ffccc7;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;\">删除</button>',
+                  '<button id="xzy-preset-load" type="button" style="background:#d9f7be;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;">加载</button>',
+                  '<button id="xzy-preset-save-new" type="button" style="background:#ffb6c1;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;">新建</button>',
+                  '<button id="xzy-preset-update" type="button" style="background:#bae7ff;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;">更新</button>',
+                  '<button id="xzy-preset-delete" type="button" style="background:#ffccc7;color:#000;border:none;padding:7px;border-radius:7px;font-weight:bold;">删除</button>',
                 '</div>',
                 '<div style="font-size:11px;color:#666;line-height:1.4;margin-top:6px;">预设会保存：备注名、音色 ID、模型名称。</div>',
               '</div>',
@@ -332,123 +246,287 @@
   function bindPanelEvents() {
     $("#xzy-tts-overlay").on("click", function(e) { if (e.target === this) $(this).fadeOut(200); });
     $("#xzy-tts-close").on("click", function() { $("#xzy-tts-overlay").fadeOut(200); });
+    
     $("#xzy-tab-set").on("click", function() {
-      $(this).css({ background: "#ffb6c1", color: "#000", border: "none" }); $("#xzy-tab-fav, #xzy-tab-cache").css({ background: "transparent", color: "#333", border: "1px solid #ccc" });
-      $("#xzy-pane-set").css("display", "flex"); $("#xzy-pane-fav, #xzy-pane-cache").hide();
+      $(this).css({ background: "#ffb6c1", color: "#000", border: "none" }); 
+      $("#xzy-tab-fav, #xzy-tab-cache").css({ background: "transparent", color: "#333", border: "1px solid #ccc" });
+      $("#xzy-pane-set").css("display", "flex"); 
+      $("#xzy-pane-fav, #xzy-pane-cache").hide();
     });
+    
     $("#xzy-tab-fav").on("click", function() {
-      $(this).css({ background: "#ffb6c1", color: "#000", border: "none" }); $("#xzy-tab-set, #xzy-tab-cache").css({ background: "transparent", color: "#333", border: "1px solid #ccc" });
-      $("#xzy-pane-fav").css("display", "flex"); $("#xzy-pane-set, #xzy-pane-cache").hide(); renderFavorites().catch(console.error);
+      $(this).css({ background: "#ffb6c1", color: "#000", border: "none" }); 
+      $("#xzy-tab-set, #xzy-tab-cache").css({ background: "transparent", color: "#333", border: "1px solid #ccc" });
+      $("#xzy-pane-fav").css("display", "flex"); 
+      $("#xzy-pane-set, #xzy-pane-cache").hide(); 
+      renderFavorites().catch(console.error);
     });
+    
     $("#xzy-tab-cache").on("click", function() {
-      $(this).css({ background: "#ffb6c1", color: "#000", border: "none" }); $("#xzy-tab-set, #xzy-tab-fav").css({ background: "transparent", color: "#333", border: "1px solid #ccc" });
-      $("#xzy-pane-cache").css("display", "flex"); $("#xzy-pane-set, #xzy-pane-fav").hide(); renderCachePane().catch(console.error);
+      $(this).css({ background: "#ffb6c1", color: "#000", border: "none" }); 
+      $("#xzy-tab-set, #xzy-tab-fav").css({ background: "transparent", color: "#333", border: "1px solid #ccc" });
+      $("#xzy-pane-cache").css("display", "flex"); 
+      $("#xzy-pane-set, #xzy-pane-fav").hide(); 
+      renderCachePane().catch(console.error);
     });
+    
     $("#xzy-btn-save").on("click", function() {
-      localStorage.setItem(LS_API, ($("#xzy-inp-api").val() || "").trim()); localStorage.setItem(LS_GRP, ($("#xzy-inp-grp").val() || "").trim());
-      localStorage.setItem(LS_VOICE, ($("#xzy-inp-voc").val() || "").trim()); localStorage.setItem(LS_MODEL, ($("#xzy-inp-mod").val() || "").trim() || "speech-2.8-hd");
-      toast("success", "配置已更新！"); $("#xzy-tts-overlay").fadeOut(200);
+      localStorage.setItem(LS_API, ($("#xzy-inp-api").val() || "").trim()); 
+      localStorage.setItem(LS_GRP, ($("#xzy-inp-grp").val() || "").trim());
+      localStorage.setItem(LS_VOICE, ($("#xzy-inp-voc").val() || "").trim()); 
+      localStorage.setItem(LS_MODEL, ($("#xzy-inp-mod").val() || "").trim() || "speech-2.8-hd");
+      toast("success", "配置已更新！"); 
+      $("#xzy-tts-overlay").fadeOut(200);
     });
+    
     let cleaning = false;
     $("#xzy-btn-clean-cache").on("click", async function() {
-      if (cleaning) return false; cleaning = true;
-      try { const count = await cleanCache(60); toast("success", "已清理本地冗余缓存 " + count + " 条。"); if ($("#xzy-pane-cache").is(":visible")) renderCachePane(); } catch (err) {} finally { cleaning = false; }
+      if (cleaning) return false; 
+      cleaning = true;
+      try { 
+        const count = await cleanCache(60); 
+        toast("success", "已清理本地冗余缓存 " + count + " 条。"); 
+        if ($("#xzy-pane-cache").is(":visible")) renderCachePane(); 
+      } catch (err) {} 
+      finally { cleaning = false; }
+    });
+
+    // 🌟 预设按钮事件绑定（修复）
+    $("#xzy-preset-load").on("click", function() {
+      const index = $("#xzy-preset-select").val();
+      if (index !== "") loadPreset(parseInt(index));
+      else toast("warning", "请选择一个预设");
+    });
+
+    $("#xzy-preset-save-new").on("click", function() {
+      createOrUpdatePreset(false);
+    });
+
+    $("#xzy-preset-update").on("click", function() {
+      createOrUpdatePreset(true);
+    });
+
+    $("#xzy-preset-delete").on("click", function() {
+      deletePreset();
     });
   }
 
-  // 🌟【提权全局调用函数】挂载到顶级 window 上，确保任何宏命令都可以 100% 调起
   window.openMinimaxPanel = function() {
-    $("#xzy-inp-api").val(localStorage.getItem(LS_API) || ""); $("#xzy-inp-grp").val(localStorage.getItem(LS_GRP) || "");
-    $("#xzy-inp-voc").val(localStorage.getItem(LS_VOICE) || ""); $("#xzy-inp-mod").val(localStorage.getItem(LS_MODEL) || "speech-2.8-hd");
-    renderPresets(); renderFavorites().catch(console.error); $("#xzy-tts-overlay").fadeIn(200);
+    $("#xzy-inp-api").val(localStorage.getItem(LS_API) || ""); 
+    $("#xzy-inp-grp").val(localStorage.getItem(LS_GRP) || "");
+    $("#xzy-inp-voc").val(localStorage.getItem(LS_VOICE) || ""); 
+    $("#xzy-inp-mod").val(localStorage.getItem(LS_MODEL) || "speech-2.8-hd");
+    renderPresets(); 
+    renderFavorites().catch(console.error); 
+    $("#xzy-tts-overlay").fadeIn(200);
   };
 
   async function renderFavorites() {
-    const pane = $("#xzy-pane-fav"); pane.empty(); const favs = await getFavorites();
-    if (favs.length === 0) { pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无收藏</div>'); return; }
-    const total = Math.max(1, Math.ceil(favs.length / favPageSize)); if (favPage > total) favPage = total; const start = (favPage - 1) * favPageSize; const pageList = favs.slice(start, start + favPageSize);
+    const pane = $("#xzy-pane-fav"); 
+    pane.empty(); 
+    const favs = await getFavorites();
+    if (favs.length === 0) { 
+      pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无收藏</div>'); 
+      return; 
+    }
+    const total = Math.max(1, Math.ceil(favs.length / favPageSize)); 
+    if (favPage > total) favPage = total; 
+    const start = (favPage - 1) * favPageSize; 
+    const pageList = favs.slice(start, start + favPageSize);
     pageList.forEach(item => {
       const row = $('<div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:8px;margin-bottom:6px;"><div style="flex:1;font-size:12px;color:#222;">' + escapeHtml(item.text) + '</div><button class="xzy-fav-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:7px 9px;cursor:pointer;">▶️</button><button class="xzy-fav-del" style="background:rgba(255,77,79,.08);color:#ff4d4f;border:none;border-radius:7px;padding:7px 9px;cursor:pointer;">✖</button></div>');
-      row.find(".xzy-fav-play").on("click", function() { playAudio(item.audio, this); }); row.find(".xzy-fav-del").on("click", async function() { await deleteFavorite(item.text); renderFavorites(); }); pane.append(row);
+      row.find(".xzy-fav-play").on("click", function() { playAudio(item.audio, this); }); 
+      row.find(".xzy-fav-del").on("click", async function() { await deleteFavorite(item.text); renderFavorites(); }); 
+      pane.append(row);
     });
-    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>'); const rowPager = $('<div style="display:flex;gap:6px;"></div>');
+    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>'); 
+    const rowPager = $('<div style="display:flex;gap:6px;"></div>');
     const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:'+(a?'#ffb6c1':d?'#f0f0f0':'#fafafa')+'">'+t+'</button>');
-    const prev = mkBtn("上一页", favPage<=1, false); if(favPage>1) prev.on('click', () => { favPage--; renderFavorites(); }); const next = mkBtn("下一页", favPage>=total, false); if(favPage<total) next.on('click', () => { favPage++; renderFavorites(); }); rowPager.append(prev).append(next); pager.append(rowPager);
-    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 '+favPage+' / '+total+' 页</span><input id="xzy-fav-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="'+favPage+'"><button id="xzy-fav-page-jump" style="padding:2px 6px;border:1px solid #ccc;">跳转</button></div>'); pager.append(jump); pane.append(pager);
+    const prev = mkBtn("上一页", favPage<=1, false); 
+    if(favPage>1) prev.on('click', () => { favPage--; renderFavorites(); }); 
+    const next = mkBtn("下一页", favPage>=total, false); 
+    if(favPage<total) next.on('click', () => { favPage++; renderFavorites(); }); 
+    rowPager.append(prev).append(next); 
+    pager.append(rowPager);
+    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 '+favPage+' / '+total+' 页</span><input id="xzy-fav-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="' + favPage + '"><button id="xzy-fav-page-jump" style="padding:2px 6px;border:1px solid #ccc;">跳转</button></div>'); 
+    pager.append(jump); 
+    pane.append(pager);
     pane.find("#xzy-fav-page-jump").on('click', () => { const val = parseInt($("#xzy-fav-page-input").val()); if(val > 0 && val <= total) { favPage = val; renderFavorites(); } });
   }
 
   async function renderCachePane() {
-    const pane = $("#xzy-pane-cache"); pane.empty(); let cacheList = await idbGetAll(STORE_CACHE); if (cacheList.length === 0) { memoryCache.forEach((audio, text) => cacheList.push({ text: text, audio: audio })); }
-    if (cacheList.length === 0) { pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无本地缓存</div>'); return; }
+    const pane = $("#xzy-pane-cache"); 
+    pane.empty(); 
+    let cacheList = await idbGetAll(STORE_CACHE); 
+    if (cacheList.length === 0) { memoryCache.forEach((audio, text) => cacheList.push({ text: text, audio: audio })); }
+    if (cacheList.length === 0) { 
+      pane.append('<div style="text-align:center;color:#777;font-size:12px;margin-top:20px;padding:20px;">暂无本地缓存</div>'); 
+      return; 
+    }
     pane.append('<div style="display:flex;justify-content:space-between;font-size:11px;color:#666;margin-bottom:6px;"><span>共缓存了 ' + cacheList.length + ' 条</span><button id="xzy-cache-clear-all" style="background:#ffccc7;color:#ff4d4f;padding:2px 6px;border-radius:4px;">一键清空</button></div>');
     $("#xzy-cache-clear-all").on('click', async () => { if(confirm("确定清空吗？")) { await idbClear(STORE_CACHE); memoryCache.clear(); renderCachePane(); } });
-    const total = Math.max(1, Math.ceil(cacheList.length / cachePageSize)); if (cachePage > total) cachePage = total; const start = (cachePage - 1) * cachePageSize; const pageList = cacheList.slice(start, start + cachePageSize);
+    const total = Math.max(1, Math.ceil(cacheList.length / cachePageSize)); 
+    if (cachePage > total) cachePage = total; 
+    const start = (cachePage - 1) * cachePageSize; 
+    const pageList = cacheList.slice(start, start + cachePageSize);
     pageList.forEach(item => {
       const filename = "mm_" + getHash(item.text) + ".mp3";
       const row = $('<div style="display:flex;align-items:center;background:#f9f9f9;border:1px solid #ddd;padding:8px;border-radius:8px;gap:8px;margin-bottom:6px;"><div style="flex:1;font-size:12px;color:#222;">' + escapeHtml(item.text) + '</div><button class="xzy-cache-play" style="background:#ffb6c1;color:#000;border:none;border-radius:7px;padding:6px 8px;cursor:pointer;">▶️</button></div>');
-      row.find(".xzy-cache-play").on("click", function() { playAudio(TAVERN_URL + "/cache/" + filename, this); }); pane.append(row);
+      row.find(".xzy-cache-play").on("click", function() { playAudio(TAVERN_URL + "/cache/" + filename, this); }); 
+      pane.append(row);
     });
-    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>'); const rowPager = $('<div style="display:flex;gap:6px;"></div>');
+    const pager = $('<div style="border-top:1px solid #eee;margin-top:8px;padding-top:10px;display:flex;flex-direction:column;gap:8px;align-items:center;"></div>'); 
+    const rowPager = $('<div style="display:flex;gap:6px;"></div>');
     const mkBtn = (t, d, a) => $('<button style="padding:4px 8px;border-radius:6px;font-size:11px;background:'+(a?'#ffb6c1':d?'#f0f0f0':'#fafafa')+'">'+t+'</button>');
-    const prev = mkBtn("上页", cachePage<=1, false); if(cachePage>1) prev.on('click', () => { cachePage--; renderCachePane(); }); const next = mkBtn("下页", cachePage>=total, false); if(cachePage<total) next.on('click', () => { cachePage++; renderCachePane(); }); rowPager.append(prev).append(next); pager.append(rowPager);
-    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 '+cachePage+' / '+total+' 页</span><input id="xzy-cache-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="'+cachePage+'"><button id="xzy-cache-page-jump" style="padding:2px 6px;border:1px solid #ccc;">跳转</button></div>'); pager.append(jump); pane.append(pager);
+    const prev = mkBtn("上页", cachePage<=1, false); 
+    if(cachePage>1) prev.on('click', () => { cachePage--; renderCachePane(); }); 
+    const next = mkBtn("下页", cachePage>=total, false); 
+    if(cachePage<total) next.on('click', () => { cachePage++; renderCachePane(); }); 
+    rowPager.append(prev).append(next); 
+    pager.append(rowPager);
+    const jump = $('<div style="display:flex;gap:6px;font-size:11px;align-items:center;"><span>第 '+cachePage+' / '+total+' 页</span><input id="xzy-cache-page-input" type="number" style="width:45px;text-align:center;border:1px solid #ccc;" value="' + cachePage + '"><button id="xzy-cache-page-jump" style="padding:2px 6px;border:1px solid #ccc;">跳转</button></div>'); 
+    pager.append(jump); 
+    pane.append(pager);
     pane.find("#xzy-cache-page-jump").on('click', () => { const val = parseInt($("#xzy-cache-page-input").val()); if(val > 0 && val <= total) { cachePage = val; renderCachePane(); } });
   }
 
   function playAudio(audioUrl, btn) {
-    if (currentAudio) currentAudio.pause(); currentAudio = new Audio(audioUrl);
+    if (currentAudio) currentAudio.pause(); 
+    currentAudio = new Audio(audioUrl);
     currentAudio.play().catch(e => {
-      console.warn("[MiniMax] 切换本地备用通道播放..."); const text = decodeURIComponent($(btn).attr("data-txt") || "");
-      if(text) { idbGet(STORE_CACHE, text).then(item => { if(item && item.audio) { if(currentAudio) currentAudio.pause(); currentAudio = new Audio(item.audio); currentAudio.play().catch(console.error); } }); }
+      console.warn("[MiniMax] 切换本地备用通道播放..."); 
+      const text = btn ? decodeURIComponent($(btn).attr("data-txt") || "") : "";
+      if(text) { 
+        idbGet(STORE_CACHE, text).then(item => { 
+          if(item && item.audio) { 
+            if(currentAudio) currentAudio.pause(); 
+            currentAudio = new Audio(item.audio); 
+            currentAudio.play().catch(console.error); 
+          } 
+        }); 
+      }
     });
-    if (btn) { btn.innerText = "🔊"; currentAudio.onended = function() { btn.innerText = "▶️"; }; }
+    if (btn) { 
+      btn.innerText = "🔊"; 
+      currentAudio.onended = function() { btn.innerText = "▶️"; }; 
+    }
   }
 
   function hexToAudioUrl(hex) {
-    const matched = hex.match(/.{1,2}/g); const bytes = new Uint8Array(matched.map(x => parseInt(x, 16))); let bin = "";
-    for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]); return "data:audio/mp3;base64," + btoa(bin);
+    const matched = hex.match(/.{1,2}/g); 
+    const bytes = new Uint8Array(matched.map(x => parseInt(x, 16))); 
+    let bin = "";
+    for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]); 
+    return "data:audio/mp3;base64," + btoa(bin);
   }
 
   window.playXzyTTS = async function(text, btn) {
-    const apiRaw = localStorage.getItem(LS_API) || ""; const voice = localStorage.getItem(LS_VOICE); const model = localStorage.getItem(LS_MODEL) || "speech-2.8-hd"; const api = apiRaw.trim().replace(/^Bearer\s+/i, "");
+    const apiRaw = localStorage.getItem(LS_API) || ""; 
+    const voice = localStorage.getItem(LS_VOICE); 
+    const model = localStorage.getItem(LS_MODEL) || "speech-2.8-hd"; 
+    const api = apiRaw.trim().replace(/^Bearer\s+/i, "");
     if (!api || !voice) { toast("warning", "请先配置 API Key 和音色 ID。"); return; }
-    const cachedUrl = await getCachedAudio(text); if (cachedUrl) { playAudio(cachedUrl, btn); return; } if (btn) btn.innerText = "⏳";
+    const cachedUrl = await getCachedAudio(text); 
+    if (cachedUrl) { playAudio(cachedUrl, btn); return; } 
+    if (btn) btn.innerText = "⏳";
     try {
       const resp = await fetch("https://api.minimaxi.com/v1/t2a_v2", {
-        method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + api },
-        body: JSON.stringify({ model: model, text: text, stream: false, voice_setting: { voice_id: voice, speed: 1, vol: 1, pitch: 0, emotion: "neutral" }, audio_setting: { sample_rate: 32000, bitrate: 128000, format: "mp3", channel: 1 }, output_format: "hex" })
+        method: "POST", 
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + api },
+        body: JSON.stringify({ 
+          model: model, 
+          text: text, 
+          stream: false, 
+          voice_setting: { voice_id: voice, speed: 1, vol: 1, pitch: 0, emotion: "neutral" }, 
+          audio_setting: { sample_rate: 32000, bitrate: 128000, format: "mp3", channel: 1 }, 
+          output_format: "hex" 
+        })
       });
-      const raw = await resp.text(); const json = JSON.parse(raw);
+      const raw = await resp.text(); 
+      const json = JSON.parse(raw);
       if (json && json.base_resp && json.base_resp.status_code === 0 && json.data && json.data.audio) {
-        const audioUrl = hexToAudioUrl(json.data.audio); await saveCachedAudio(text, audioUrl); if (btn) btn.innerText = "▶️";
-        const filename = "mm_" + getHash(text) + ".mp3"; playAudio(TAVERN_URL + "/cache/" + filename, btn);
-      } else { if (btn) btn.innerText = "❌"; let code = json && json.base_resp ? json.base_resp.status_code : "未知"; toast("error", "MiniMax 报错: " + code); }
-    } catch (err) { if (btn) btn.innerText = "❌"; }
+        const audioUrl = hexToAudioUrl(json.data.audio); 
+        await saveCachedAudio(text, audioUrl); 
+        if (btn) btn.innerText = "▶️";
+        const filename = "mm_" + getHash(text) + ".mp3"; 
+        playAudio(TAVERN_URL + "/cache/" + filename, btn);
+      } else { 
+        if (btn) btn.innerText = "❌"; 
+        let code = json && json.base_resp ? json.base_resp.status_code : "未知"; 
+        toast("error", "MiniMax 报错: " + code); 
+      }
+    } catch (err) { 
+      if (btn) btn.innerText = "▶️"; 
+      toast("error", "请求失败: " + (err.message || "未知错误"));
+      console.error("[MiniMax]", err);
+    }
   };
 
   window.favXzyTTS = async function(text, btn) {
     try {
-      const audio = await getCachedAudio(text); if (!audio) { toast("warning", "请先点击 ▶️ 生成语音再收藏！"); return; }
-      const old = await idbGet(STORE_FAV, text); if (old) { toast("info", "已经在收藏夹里了。"); return; }
-      await idbPut(STORE_FAV, { text: text, audio: audio, time: Date.now() }); toast("success", "已添加到收藏夹！"); if (btn) btn.innerText = "🌟";
-    } catch (e) { toast("error", "收藏失败"); }
+      const audio = await getCachedAudio(text); 
+      if (!audio) { toast("warning", "请先点击 ▶️ 生成语音再收藏！"); return; }
+      const old = await idbGet(STORE_FAV, text); 
+      if (old) { toast("info", "已经在收藏夹里了。"); return; }
+      await idbPut(STORE_FAV, { text: text, audio: audio, time: Date.now() }); 
+      toast("success", "已添加到收藏夹！"); 
+      if (btn) btn.innerText = "🌟";
+    } catch (e) { 
+      toast("error", "收藏失败"); 
+      console.error("[MiniMax]", e);
+    }
   };
 
   function processMessages() {
     $(".mes_text p").each(function() {
-      if ($(this).hasClass("xzy-tts-processed")) return; const oldHtml = $(this).html();
+      if ($(this).hasClass("xzy-tts-processed")) return; 
+      const oldHtml = $(this).html();
+      // 🌟 修复正则表达式 - 正确删除引号字符
       const newHtml = oldHtml.replace(/(\"[^\"]+\"|“[^”]+”|「[^」]+」|『[^』]+』)/g, function(match) {
-        const text = match.replace(/[\"区域内“专”」『』「精度”]/g, "").replace(/<[^>]*>?/gm, "").trim(); if (text.length === 0) return match; const encoded = encodeURIComponent(text);
+        const text = match.replace(/[""「」『』“”]/g, "").replace(/<[^>]*>?/gm, "").trim(); 
+        if (text.length === 0) return match; 
+        const encoded = encodeURIComponent(text);
         return match + "<span class='xzy-inline-wrap' style='white-space:nowrap;margin-left:4px;opacity:0.8;user-select:none;display:inline-flex;gap:2px;align-items:center;'><span class='xzy-play-btn' data-txt='" + encoded + "' style='cursor:pointer;background:rgba(0,0,0,0.05);padding:2px 4px;border-radius:4px;font-size:0.9em;'>▶️</span><span class='xzy-fav-btn' data-txt='" + encoded + "' style='cursor:pointer;background:rgba(0,0,0,0.05);padding:2px 4px;border-radius:4px;font-size:0.9em;'>⭐</span></span>";
       });
       $(this).html(newHtml).addClass("xzy-tts-processed");
     });
   }
 
-  initUI(); bindPanelEvents();
-  $("#chat").off("click.xzyplay").on("click.xzyplay", ".xzy-play-btn", function(e) { e.stopPropagation(); window.playXzyTTS(decodeURIComponent($(this).attr("data-txt")), this); });
-  $("#chat").off("click.xzyfav").on("click.xzyfav", ".xzy-fav-btn", function(e) { e.stopPropagation(); window.favXzyTTS(decodeURIComponent($(this).attr("data-txt")), this); });
+  initUI(); 
+  bindPanelEvents();
+
+  // 🌟 通过原生全局事件监听挂载到酒馆扩展按钮
+  jQuery(document).ready(function() {
+    const eventOn = getApi("eventOn"), getButtonEvent = getApi("getButtonEvent");
+    if (eventOn && getButtonEvent) {
+      eventOn(getButtonEvent("minimax语音"), function() { 
+        window.openMinimaxPanel(); 
+      });
+    }
+
+    // 🌟 额外添加斜杠命令支持（与按钮不冲突）
+    const registerCommand = getApi("registerSlashCommand");
+    if (registerCommand) {
+      registerCommand("minimax", () => window.openMinimaxPanel(), [], "🎤 打开MiniMax语音面板", true);
+      registerCommand("mmplay", (args) => {
+        if (args && args.trim()) {
+          window.playXzyTTS(args.trim());
+        } else {
+          toast("warning", "用法: /mmplay 要朗读的文本");
+        }
+      }, ["text"], "🔊 朗读指定文本", true);
+    }
+  });
+
+  $("#chat").off("click.xzyplay").on("click.xzyplay", ".xzy-play-btn", function(e) { 
+    e.stopPropagation(); 
+    window.playXzyTTS(decodeURIComponent($(this).attr("data-txt")), this); 
+  });
+  
+  $("#chat").off("click.xzyfav").on("click.xzyfav", ".xzy-fav-btn", function(e) { 
+    e.stopPropagation(); 
+    window.favXzyTTS(decodeURIComponent($(this).attr("data-txt")), this); 
+  });
 
   setInterval(processMessages, 2000);
 })();
