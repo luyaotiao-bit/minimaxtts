@@ -652,7 +652,6 @@
             item.className = 'extension_container interactable minimax-menu-item';
             item.setAttribute('tabindex', '0');
             item.setAttribute('role', 'listitem');
-            // 使用和其他菜单项一致的 padding: 5px
             item.style.cssText = "padding: 5px; cursor: pointer; border-radius: 4px; transition: background 0.2s;";
             item.innerHTML = '<span>MiniMax语音</span>';
             item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
@@ -716,16 +715,13 @@
 // ========== 启动消息处理 ==========
 console.log("[MiniMax] 启动消息处理器...");
 
-// 立即执行一次
 setTimeout(function() {
     processMessages();
     console.log("[MiniMax] ✅ 首次消息处理完成");
 }, 1000);
 
-// 每2秒执行一次
 setInterval(processMessages, 2000);
 
-// 监听新消息
 const chatObserver = new MutationObserver(function() {
     clearTimeout(chatObserver.debounce);
     chatObserver.debounce = setTimeout(function() {
@@ -746,7 +742,4 @@ if (chatContainer) {
 
 console.log("[MiniMax] ✅ 消息处理器已完全启动");
 
-})();
-```
-
-**保存后刷新页面，打开控制台查看是否有错误信息。**
+})();  // ← 这行必须有，结束最外层的 (function(){ ... })()
