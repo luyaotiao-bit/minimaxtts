@@ -1,38 +1,3 @@
-我发现问题了！你的代码结构有严重错误 —— `addToExtensions` 函数的结束括号位置不对，导致后面的代码被错误地包含在了函数内部。
-
-## 问题所在
-
-你的代码中：
-
-```javascript
-// ========== 添加到扩展菜单 ==========
-(function() {
-    // ... addMenuItem 函数 ...
-    
-    // 监听扩展按钮点击
-    document.addEventListener('click', function(e) { ... });
-    
-    // 监听 DOM 变化
-    const observer = new MutationObserver(function() { ... });
-    
-    // 定期检查
-    let attempts = 0;
-    const interval = setInterval(function() { ... }, 2000);
-    
-    console.log("[MiniMax] ✅ 注入程序已启动，点击 🧩 扩展按钮查看");
-})();  // ← 这里结束
-
-// ========== 启动消息处理 ==========  // ← 这部分应该在 addToExtensions 外面
-// 但你的代码中它被错误地放在了里面
-```
-
-你的代码中 `addToExtensions` 的 `})();` 放错位置了，导致 `addMenuItem` 函数没有被正确关闭。
-
-## 修复后的完整代码
-
-直接复制这个完整的文件：
-
-```javascript
 (function(){
   "use strict";
 
@@ -652,6 +617,7 @@
             item.className = 'extension_container interactable minimax-menu-item';
             item.setAttribute('tabindex', '0');
             item.setAttribute('role', 'listitem');
+            // 使用和其他菜单项一致的 padding: 5px
             item.style.cssText = "padding: 5px; cursor: pointer; border-radius: 4px; transition: background 0.2s;";
             item.innerHTML = '<span>MiniMax语音</span>';
             item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
@@ -715,13 +681,16 @@
 // ========== 启动消息处理 ==========
 console.log("[MiniMax] 启动消息处理器...");
 
+// 立即执行一次
 setTimeout(function() {
     processMessages();
     console.log("[MiniMax] ✅ 首次消息处理完成");
 }, 1000);
 
+// 每2秒执行一次
 setInterval(processMessages, 2000);
 
+// 监听新消息
 const chatObserver = new MutationObserver(function() {
     clearTimeout(chatObserver.debounce);
     chatObserver.debounce = setTimeout(function() {
@@ -742,4 +711,4 @@ if (chatContainer) {
 
 console.log("[MiniMax] ✅ 消息处理器已完全启动");
 
-})();  // ← 这行必须有，结束最外层的 (function(){ ... })()
+})();
