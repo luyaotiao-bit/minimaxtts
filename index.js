@@ -495,8 +495,9 @@
   initUI(); 
   bindPanelEvents();
 
-// ========== 添加到扩展菜单（最终版） ==========
-(function addToExtensions() {
+  
+// ========== 添加到扩展菜单（立即执行版） ==========
+(function() {
     console.log("[MiniMax] 启动扩展菜单注入...");
     
     function addMenuItem() {
@@ -541,33 +542,55 @@
         return false;
     }
     
+    // 立即尝试添加
+    setTimeout(function() {
+        const menu = document.getElementById('extensionsMenu');
+        if (menu) {
+            console.log("[MiniMax] 找到扩展菜单，尝试添加...");
+            addMenuItem();
+        } else {
+            console.log("[MiniMax] 扩展菜单尚未加载，等待用户点击...");
+        }
+    }, 2000);
+    
     // 监听扩展按钮点击
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('#extensionsMenuButton');
         if (btn) {
             console.log("[MiniMax] 扩展按钮被点击");
-            setTimeout(addMenuItem, 100);
-            setTimeout(addMenuItem, 300);
+            setTimeout(addMenuItem, 200);
+            setTimeout(addMenuItem, 500);
         }
     });
     
-    // 使用 MutationObserver 监听菜单出现
-    const observer = new MutationObserver(function() {
-        const menu = document.getElementById('extensionsMenu');
-        if (menu && menu.style.display !== 'none') {
-            addMenuItem();
+    // 监听 DOM 变化
+    const observer = new MutationObserver(function(mutations) {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+                const menu = document.getElementById('extensionsMenu');
+                if (menu && menu.style.display !== 'none') {
+                    addMenuItem();
+                }
+            }
         }
     });
     observer.observe(document.body, { 
         childList: true, 
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style', 'display']
+        subtree: true 
     });
     
-    // 立即尝试
-    setTimeout(addMenuItem, 1000);
-    setTimeout(addMenuItem, 3000);
+    // 额外尝试：每隔几秒检查一次
+    let attempts = 0;
+    const interval = setInterval(function() {
+        attempts++;
+        if (addMenuItem()) {
+            clearInterval(interval);
+            console.log("[MiniMax] 已在定时检查中添加上");
+        } else if (attempts > 20) {
+            clearInterval(interval);
+            console.log("[MiniMax] 定时检查结束，如需添加请点击扩展按钮");
+        }
+    }, 3000);
     
-    console.log("[MiniMax] ✅ 注入程序已启动");
+    console.log("[MiniMax] ✅ 注入程序已启动，点击 🧩 扩展按钮查看");
 })();
