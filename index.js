@@ -507,10 +507,10 @@
     });
   }
   
-  function playAudio(audioUrl, btn) {
-    if (currentAudio) currentAudio.pause(); 
-    currentAudio = new Audio(audioUrl);
-    currentAudio.play().catch(e => {
+  window.playAudio = function(audioUrl, btn) {
+    if (window.currentAudio) window.currentAudio.pause();
+    window.currentAudio = new Audio(audioUrl);
+    window.currentAudio.play().catch(e => {
       console.warn("[MiniMax] 切换本地备用通道播放..."); 
       const text = btn ? decodeURIComponent($(btn).attr("data-txt") || "") : "";
       if(text) { 
