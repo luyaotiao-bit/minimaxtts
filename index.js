@@ -1,3 +1,37 @@
+我发现问题了！你的代码结构有严重错误 —— `addToExtensions` 函数的结束括号位置不对，导致后面的代码被错误地包含在了函数内部。
+
+## 问题所在
+
+你的代码中：
+
+```javascript
+// ========== 添加到扩展菜单 ==========
+(function() {
+    // ... addMenuItem 函数 ...
+    
+    // 监听扩展按钮点击
+    document.addEventListener('click', function(e) { ... });
+    
+    // 监听 DOM 变化
+    const observer = new MutationObserver(function() { ... });
+    
+    // 定期检查
+    let attempts = 0;
+    const interval = setInterval(function() { ... }, 2000);
+    
+    console.log("[MiniMax] ✅ 注入程序已启动，点击 🧩 扩展按钮查看");
+})();  // ← 这里结束
+
+// ========== 启动消息处理 ==========  // ← 这部分应该在 addToExtensions 外面
+// 但你的代码中它被错误地放在了里面
+```
+
+你的代码中 `addToExtensions` 的 `})();` 放错位置了，导致 `addMenuItem` 函数没有被正确关闭。
+
+## 修复后的完整代码
+
+直接复制这个完整的文件：
+
 ```javascript
 (function(){
   "use strict";
@@ -714,3 +748,5 @@ console.log("[MiniMax] ✅ 消息处理器已完全启动");
 
 })();
 ```
+
+**保存后刷新页面，打开控制台查看是否有错误信息。**
