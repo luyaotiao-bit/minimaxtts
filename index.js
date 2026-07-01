@@ -526,7 +526,42 @@
         }
         return false;
     }
-    
+
+// ========== 启动消息处理 ==========
+console.log("[MiniMax] 启动消息处理器...");
+
+// 立即执行一次
+setTimeout(function() {
+    processMessages();
+    console.log("[MiniMax] ✅ 首次消息处理完成");
+}, 1000);
+
+// 每2秒执行一次
+setInterval(processMessages, 2000);
+
+// 监听新消息（通过 MutationObserver 监听聊天区域变化）
+const chatObserver = new MutationObserver(function() {
+    // 防抖：500ms 内只触发一次
+    clearTimeout(chatObserver.debounce);
+    chatObserver.debounce = setTimeout(function() {
+        processMessages();
+    }, 500);
+});
+
+// 监听聊天容器
+const chatContainer = document.getElementById('chat');
+if (chatContainer) {
+    chatObserver.observe(chatContainer, {
+        childList: true,
+        subtree: true
+    });
+    console.log("[MiniMax] ✅ 聊天监听已启动");
+} else {
+    console.log("[MiniMax] ⚠️ 未找到聊天容器，将使用定时器轮询");
+}
+
+console.log("[MiniMax] ✅ 消息处理器已完全启动");
+  
     // 监听扩展按钮点击
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('#extensionsMenuButton');
