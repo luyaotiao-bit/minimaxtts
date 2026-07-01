@@ -544,7 +544,7 @@
     const api = apiRaw.trim().replace(/^Bearer\s+/i, "");
     if (!api || !voice) { toast("warning", "请先配置 API Key 和音色 ID。"); return; }
     const cachedUrl = await getCachedAudio(text); 
-    if (cachedUrl) { playAudio(cachedUrl, btn); return; } 
+    if (cachedUrl) { window.playAudio(cachedUrl, btn); return; } 
     if (btn) btn.innerText = "⏳";
     try {
       const resp = await fetch("https://api.minimaxi.com/v1/t2a_v2", {
@@ -566,7 +566,7 @@
         await saveCachedAudio(text, audioUrl); 
         if (btn) btn.innerText = "▶️";
         const filename = "mm_" + getHash(text) + ".mp3"; 
-        playAudio(TAVERN_URL + "/cache/" + filename, btn);
+        window.playAudio(TAVERN_URL + "/cache/" + filename, btn);
       } else { 
         if (btn) btn.innerText = "❌"; 
         let code = json && json.base_resp ? json.base_resp.status_code : "未知"; 
