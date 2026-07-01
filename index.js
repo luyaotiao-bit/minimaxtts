@@ -504,7 +504,7 @@
             item.className = 'extension_container interactable minimax-menu-item';
             item.setAttribute('tabindex', '0');
             item.setAttribute('role', 'listitem');
-            item.style.cssText = "display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; border-radius: 4px; transition: background 0.2s;";
+            item.style.cssText = "display: flex; align-items: center; gap: 10px; padding: 5px; cursor: pointer; border-radius: 4px; transition: background 0.2s;";
             item.innerHTML = '<div class="fa-fw fa-solid fa-microphone extensionsMenuExtensionButton" style="color: #ffb6c1;"></div><span>MiniMax语音</span>';
             item.onmouseenter = function() { this.style.background = 'rgba(255,182,193,0.15)'; };
             item.onmouseleave = function() { this.style.background = 'transparent'; };
